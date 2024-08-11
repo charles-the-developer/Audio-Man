@@ -25,10 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Store the original buffer
                 wavesurfer.on('ready', () => {
-                    wavesurfer.backend.getDecodedBuffer().then(buffer => {
-                        originalBuffer = buffer;
-                        downloadButton.disabled = true;
-                    });
+                    originalBuffer = wavesurfer.backend.buffer;
+                    downloadButton.disabled = true;
                 });
             };
             reader.readAsArrayBuffer(file);
@@ -55,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineContext.startRendering().then(renderedBuffer => {
                 wavesurfer.loadDecodedBuffer(renderedBuffer);
                 downloadButton.disabled = false;
+            }).catch(error => {
+                console.error('Error rendering buffer:', error);
             });
         }
     });
@@ -129,4 +129,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-                  
