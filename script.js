@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Here we load the audio buffer into WaveSurfer
                     // wavesurfer.loadDecodedBuffer(buffer);
-                    wavesurfer.load(buffer);
+                    wavesurfer.loadBlob(buffer);
                     
 
                 }, (error) => {
