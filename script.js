@@ -13,49 +13,66 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                if (wavesurfer) {
-                    wavesurfer.destroy();
-                }
-                wavesurfer = WaveSurfer.create({
-                    container: waveform,
-                    waveColor: 'violet',
-                    progressColor: 'purple'
-                });
-                wavesurfer.loadBlob(new Blob([e.target.result]));
-                
-                // Store the original buffer
-                wavesurfer.on('ready', () => {
-                    originalBuffer = wavesurfer.backend.buffer;
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                audioContext.decodeAudioData(e.target.result, (buffer) => {
+                    originalBuffer = buffer;
                     downloadButton.disabled = true;
+
+                    // Initialize WaveSurfer with the decoded buffer
+                    if (wavesurfer) {
+                        wavesurfer.destroy();
+                    }
+                    wavesurfer = WaveSurfer.create({
+                        container: waveform,
+                        waveColor: 'violet',
+                        progressColor: 'purple',
+                        backend: 'WebAudio'  // Ensure WaveSurfer uses Web Audio API
+                    });
+
+                    // Here we load the audio buffer into WaveSurfer
+                    // wavesurfer.loadDecodedBuffer(buffer);
+                    wavesurfer.load(buffer);
+                    
+
+                }, (error) => {
+                    console.error('Error decoding audio data:', error);
                 });
             };
+
+            reader.onerror = (error) => {
+                console.error('FileReader error:', error);
+            };
+
             reader.readAsArrayBuffer(file);
         }
     });
 
     processButton.addEventListener('click', () => {
         const speed = parseFloat(speedInput.value);
-        if (wavesurfer && originalBuffer) {
-            const audioContext = wavesurfer.backend.ac;
+        if (originalBuffer) {
             const offlineContext = new OfflineAudioContext(
                 originalBuffer.numberOfChannels,
                 originalBuffer.length / speed,
                 originalBuffer.sampleRate
             );
 
-            const offlineSource = offlineContext.createBufferSource();
-            offlineSource.buffer = originalBuffer;
-            offlineSource.playbackRate.value = speed;
+            const source = offlineContext.createBufferSource();
+            source.buffer = originalBuffer;
+            source.playbackRate.setValueAtTime(speed, 0);
 
-            offlineSource.connect(offlineContext.destination);
-            offlineSource.start();
+            source.connect(offlineContext.destination);
+            source.start(0);
 
-            offlineContext.startRendering().then(renderedBuffer => {
+            offlineContext.startRendering().then((renderedBuffer) => {
+                // Load the new speed-adjusted buffer into WaveSurfer
                 wavesurfer.loadDecodedBuffer(renderedBuffer);
                 downloadButton.disabled = false;
-            }).catch(error => {
-                console.error('Error rendering buffer:', error);
+            }).catch((err) => {
+                console.error('Error in audio processing:', err);
             });
+        } else {
+            console.error('No audio buffer to process');
         }
     });
 
