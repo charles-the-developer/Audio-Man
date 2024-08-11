@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Speed Changer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Upload an Audio File</h1>
+    <input type="file" id="audioFile" accept="audio/*">
+    <div id="waveform"></div>
+    <label for="speed">Speed (e.g., 0.5 for half speed, 2 for double speed):</label>
+    <input type="number" id="speed" step="0.1" value="1" min="0.1" max="4">
+    <button id="processButton">Process</button>
+    <button id="downloadButton" disabled>Download</button>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

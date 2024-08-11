@@ -1,0 +1,14 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+#waveform {
+    width: 100%;
+    height: 200px;
+    margin-top: 20px;
+}
+
+input[type="number"] {
+    width: 60px;
+}
