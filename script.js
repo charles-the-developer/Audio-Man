@@ -25,8 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Store the original buffer
                 wavesurfer.on('ready', () => {
-                    originalBuffer = wavesurfer.backend.buffer;
-                    downloadButton.disabled = true;
+                    wavesurfer.backend.getDecodedBuffer().then(buffer => {
+                        originalBuffer = buffer;
+                        downloadButton.disabled = true;
+                    });
                 });
             };
             reader.readAsArrayBuffer(file);
@@ -37,9 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const speed = parseFloat(speedInput.value);
         if (wavesurfer && originalBuffer) {
             const audioContext = wavesurfer.backend.ac;
-            const source = audioContext.createBufferSource();
-            source.buffer = originalBuffer;
-
             const offlineContext = new OfflineAudioContext(
                 originalBuffer.numberOfChannels,
                 originalBuffer.length / speed,
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     downloadButton.addEventListener('click', () => {
         if (wavesurfer) {
-            const audioContext = wavesurfer.backend.ac;
             const buffer = wavesurfer.backend.buffer;
             const wavData = audioBufferToWav(buffer);
             const blob = new Blob([new DataView(wavData)], { type: 'audio/wav' });
@@ -104,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setUint32(0x61746164); // "data" - chunk
         setUint32(length - pos - 4); // chunk length
 
-        // write interleaved data.
+        // write interleaved data
         for (i = 0; i < buffer.numberOfChannels; i++)
             channels.push(buffer.getChannelData(i));
 
@@ -131,3 +129,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+                  
