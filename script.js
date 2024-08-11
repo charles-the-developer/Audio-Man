@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             length = buffer.length * numOfChan * 2 + 44,
             bufferArray = new ArrayBuffer(length),
             view = new DataView(bufferArray),
-            channels = [], i, sample,
+            channels = [], i=null, sample=null,
             offset = 0,
             pos = 0;
 
